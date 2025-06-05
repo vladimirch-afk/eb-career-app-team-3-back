@@ -31,4 +31,15 @@ class UserService(
         val user = userRepository.findByUsername(username) ?: return false
         return passwordEncoder.matches(password, user.password)
     }
+
+    fun changePassword(username: String, newPassword: String) {
+        val user = userRepository.findByUsername(username)
+            ?: throw IllegalArgumentException("Пользователь не найден")
+
+        val encodedPassword = passwordEncoder.encode(newPassword)
+        val updatedUser = user.copy(password = encodedPassword)
+
+        userRepository.save(updatedUser)
+    }
+
 }

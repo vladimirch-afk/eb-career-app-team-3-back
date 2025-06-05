@@ -44,7 +44,7 @@ class AuthController(
         return if (userService.authenticate(request.username, request.password)) {
             ResponseEntity.ok("Login successful")
         } else {
-            ResponseEntity.status(401).body("Invalid credentials")
+            ResponseEntity.status(401).body("Неверные данные")
         }
     }
 
@@ -54,7 +54,7 @@ class AuthController(
             verificationService.sendCode(request.email)
             ResponseEntity.ok("Verification code sent")
         } catch (e: Exception) {
-            ResponseEntity.internalServerError().body("Failed to send verification code")
+            ResponseEntity.internalServerError().body("Ошибка отправки кода")
         }
     }
 
@@ -67,6 +67,24 @@ class AuthController(
             ResponseEntity.badRequest().body(e.message)
         }
     }
+
+    @PostMapping("/change-password")
+    fun changePassword(@RequestBody request: ChangePasswordRequest): ResponseEntity<String> {
+        return try {
+            userService.changePassword(request.username, request.newPassword)
+            ResponseEntity.ok("Password changed successfully")
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body(e.message)
+        } catch (e: Exception) {
+            ResponseEntity.internalServerError().body("Ошибка при смене пароля")
+        }
+    }
+
+    data class ChangePasswordRequest(
+        val username: String,
+        val newPassword: String
+    )
+
 
     data class VerifyCodeRequest(val email: String, val code: String)
 
